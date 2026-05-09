@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IVB College Canteen Billing App</title>
+  <meta name="description" content="Order, pay and pick up food fast at the IVB College canteen — modern self-order kiosk for students." />
+  <link rel="icon" href="assets/logo.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: { 50:'#fff5eb', 100:'#ffe4c7', 300:'#ffb066', 500:'#ff6a00', 600:'#e85a00', 700:'#b94600' },
+            ink:   { 900:'#0a0a0a', 800:'#141414', 700:'#1c1c1c' }
+          },
+          fontFamily: { display: ['"Plus Jakarta Sans"','system-ui','sans-serif'], body: ['Inter','system-ui','sans-serif'] },
+          boxShadow: { glow: '0 10px 40px -10px rgba(255,106,0,.6)' }
+        }
+      }
+    }
+  </script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+</head>
+<body class="font-body bg-ink-900 text-white min-h-screen antialiased">
+
+  <!-- =============== LOGIN SCREEN =============== -->
+  <section id="loginScreen" class="fixed inset-0 z-50 flex items-center justify-center p-4 hero-bg">
+    <div class="glass max-w-md w-full p-8 rounded-3xl shadow-glow">
+      <div class="flex flex-col items-center text-center mb-6">
+        <img src="assets/logo.png" alt="IVB" class="w-20 h-20 mb-3 drop-shadow-[0_4px_18px_rgba(255,106,0,0.6)]" />
+        <h1 class="font-display text-3xl font-extrabold tracking-tight">IVB College Canteen</h1>
+        <p class="text-white/60 text-sm mt-1">Sign in with your student credentials</p>
+      </div>
+      <form id="loginForm" class="space-y-4">
+        <div>
+          <label class="text-xs uppercase tracking-wider text-white/60">Student ID</label>
+          <input id="studentId" required type="text" placeholder="e.g. IVB22CS045"
+            class="mt-1 w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 transition" />
+        </div>
+        <div>
+          <label class="text-xs uppercase tracking-wider text-white/60">Student Name</label>
+          <input id="studentName" required type="text" placeholder="Your full name"
+            class="mt-1 w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 transition" />
+        </div>
+        <button type="submit" class="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-brand-500 to-brand-700 hover:from-brand-600 hover:to-brand-700 transition shadow-glow">
+          Continue →
+        </button>
+      </form>
+      <p class="text-center text-xs text-white/40 mt-6">Frontend demo · No data leaves your device</p>
+    </div>
+  </section>
+
+  <!-- =============== APP =============== -->
+  <div id="app" class="hidden">
+
+    <!-- Navbar -->
+    <header class="sticky top-0 z-40 glass-nav border-b border-white/10">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-3">
+        <img src="assets/logo.png" alt="IVB" class="w-9 h-9" />
+        <div class="hidden sm:block leading-tight">
+          <div class="font-display font-extrabold text-lg">IVB Canteen</div>
+          <div class="text-[10px] uppercase tracking-widest text-brand-300">Billing App</div>
+        </div>
+        <div class="flex-1 max-w-xl mx-auto relative">
+          <input id="searchInput" type="search" placeholder="Search dishes…"
+            class="w-full bg-white/5 border border-white/10 rounded-full px-5 py-2.5 pl-11 outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/30 transition text-sm" />
+          <svg class="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-white/50" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        <button id="themeToggle" class="icon-btn" title="Toggle theme">
+          <svg id="iconMoon" class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          <svg id="iconSun" class="w-5 h-5 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+        </button>
+        <button id="historyBtn" class="icon-btn" title="Order history">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 3-6.7L3 8"/><path d="M3 3v5h5"/><path d="M12 7v5l3 2"/></svg>
+        </button>
+        <button id="cartBtn" class="icon-btn relative" title="Cart">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.7 13.4a2 2 0 0 0 2 1.6h9.7a2 2 0 0 0 2-1.6L23 6H6"/></svg>
+          <span id="cartBadge" class="absolute -top-1 -right-1 bg-brand-500 text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center hidden">0</span>
+        </button>
+        <div class="relative">
+          <button id="profileBtn" class="icon-btn">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+          </button>
+          <div id="profileMenu" class="hidden absolute right-0 mt-2 w-56 glass rounded-xl p-3 shadow-xl">
+            <div class="text-xs text-white/50">Signed in as</div>
+            <div id="profileName" class="font-semibold truncate"></div>
+            <div id="profileId" class="text-xs text-brand-300 mb-3"></div>
+            <button id="logoutBtn" class="w-full py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm">Logout</button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Hero -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 pt-8">
+      <div class="glass rounded-3xl p-6 sm:p-10 hero-bg overflow-hidden relative">
+        <div class="relative z-10 max-w-2xl">
+          <div class="inline-flex items-center gap-2 text-xs uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full mb-3">
+            <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span> Counter open
+          </div>
+          <h2 class="font-display text-3xl sm:text-5xl font-extrabold leading-tight">
+            Welcome, <span id="welcomeName" class="text-brand-300">Student</span>
+          </h2>
+          <p class="text-white/70 mt-3 max-w-md">Browse the menu, build your order and grab a QR receipt — pickup in 8–10 minutes.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filters -->
+    <section class="max-w-7xl mx-auto px-4 sm:px-6 py-6 sticky top-[68px] z-30 backdrop-blur-md">
+      <div class="flex items-center gap-2 overflow-x-auto pb-1 no-scrollbar">
+        <button class="cat-btn active" data-cat="All">All</button>
+        <button class="cat-btn" data-cat="Breakfast">Breakfast</button>
+        <button class="cat-btn" data-cat="Meals">Meals</button>
+        <button class="cat-btn" data-cat="Snacks">Snacks</button>
+        <button class="cat-btn" data-cat="Beverages">Beverages</button>
+        <button class="cat-btn" data-cat="Desserts">Desserts</button>
+        <button id="clearFilters" class="ml-auto text-xs text-white/60 hover:text-brand-300 px-3 py-1.5 rounded-full border border-white/10">Clear filters</button>
+      </div>
+    </section>
+
+    <!-- Menu Grid -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 pb-32">
+      <div id="menuGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5"></div>
+      <div id="emptyState" class="hidden text-center py-20 text-white/50">No dishes match your search.</div>
+    </main>
+
+    <footer class="border-t border-white/10 py-6 text-center text-xs text-white/40">
+      © IVB College Canteen · Built with ♥ for hungry students
+    </footer>
+  </div>
+
+  <!-- =============== CART DRAWER =============== -->
+  <aside id="cartDrawer" class="fixed inset-y-0 right-0 w-full sm:w-[420px] bg-ink-800 border-l border-white/10 z-50 transform translate-x-full transition-transform duration-300 flex flex-col cart-drawer">
+    <div class="p-5 border-b border-white/10 flex items-center justify-between">
+      <h3 class="font-display text-xl font-bold">Your Cart</h3>
+      <button id="closeCart" class="icon-btn">✕</button>
+    </div>
+    <div id="cartItems" class="flex-1 overflow-y-auto p-5 space-y-3"></div>
+    <div class="border-t border-white/10 p-5 space-y-3 bg-ink-900/60">
+      <div class="flex gap-2">
+        <input id="discountCode" placeholder="Discount code (IVB10 / FOOD20)"
+          class="flex-1 bg-white/5 border border-white/10 rounded-lg px-3 py-2 text-sm outline-none focus:border-brand-500" />
+        <button id="applyDiscount" class="px-3 py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-sm font-semibold">Apply</button>
+      </div>
+      <div id="discountMsg" class="text-xs"></div>
+      <div class="text-sm space-y-1">
+        <div class="flex justify-between"><span class="text-white/60">Subtotal</span><span id="sumSubtotal">₹0</span></div>
+        <div class="flex justify-between"><span class="text-white/60">GST (5%)</span><span id="sumGst">₹0</span></div>
+        <div class="flex justify-between"><span class="text-white/60">Discount</span><span id="sumDiscount" class="text-emerald-400">-₹0</span></div>
+        <div class="flex justify-between text-lg font-bold pt-2 border-t border-white/10"><span>Total</span><span id="sumTotal" class="text-brand-300">₹0</span></div>
+      </div>
+      <div>
+        <div class="text-xs uppercase tracking-wider text-white/60 mb-2">Payment method</div>
+        <div class="grid grid-cols-4 gap-2" id="payMethods">
+          <button class="pay-btn active" data-pay="Cash">💵<span>Cash</span></button>
+          <button class="pay-btn" data-pay="Card">💳<span>Card</span></button>
+          <button class="pay-btn" data-pay="UPI">📱<span>UPI</span></button>
+          <button class="pay-btn" data-pay="Wallet">👛<span>Wallet</span></button>
+        </div>
+      </div>
+      <button id="placeOrderBtn" class="w-full py-3 rounded-xl font-semibold bg-gradient-to-r from-brand-500 to-brand-700 hover:from-brand-600 hover:to-brand-700 transition shadow-glow disabled:opacity-50 disabled:cursor-not-allowed">
+        <span id="placeOrderText">Place Order</span>
+        <span id="placeOrderSpinner" class="hidden inline-block w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin align-middle"></span>
+      </button>
+    </div>
+  </aside>
+  <div id="cartBackdrop" class="fixed inset-0 bg-black/60 z-40 hidden"></div>
+
+  <!-- =============== HISTORY MODAL =============== -->
+  <div id="historyModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/70">
+    <div class="glass max-w-2xl w-full max-h-[85vh] rounded-3xl flex flex-col">
+      <div class="p-5 border-b border-white/10 flex items-center justify-between">
+        <h3 class="font-display text-xl font-bold">Order History</h3>
+        <button class="icon-btn closeModal">✕</button>
+      </div>
+      <div id="historyList" class="overflow-y-auto p-5 space-y-3"></div>
+    </div>
+  </div>
+
+  <!-- =============== SUCCESS MODAL — STARTS HIDDEN, NEVER AUTO-OPENS =============== -->
+  <div id="successModal" class="fixed inset-0 z-50 hidden items-center justify-center p-4 bg-black/80">
+    <div class="glass max-w-md w-full rounded-3xl p-6 text-center relative overflow-hidden">
+      <div class="success-burst"></div>
+      <div class="relative z-10">
+        <div class="mx-auto w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mb-3 animate-pop">
+          <svg class="w-8 h-8 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="M20 6 9 17l-5-5"/></svg>
+        </div>
+        <h3 class="font-display text-2xl font-extrabold">Order Placed!</h3>
+        <p class="text-white/70 text-sm mt-1">Your order has been placed successfully</p>
+        <p class="text-brand-300 text-sm font-semibold mt-1">Estimated Pickup: 8–10 mins</p>
+
+        <div class="mt-4 bg-white/5 rounded-xl p-4 text-left text-sm space-y-1">
+          <div><span class="text-white/50">Order ID:</span> <span id="recOrderId" class="font-mono"></span></div>
+          <div><span class="text-white/50">Student:</span> <span id="recStudent"></span></div>
+          <div><span class="text-white/50">Payment:</span> <span id="recPay"></span></div>
+        </div>
+
+        <div id="qrcode" class="bg-white p-3 rounded-xl mt-4 inline-block"></div>
+        <p class="text-xs text-white/60 mt-2">Show this QR at pickup counter</p>
+
+        <div class="grid grid-cols-3 gap-2 mt-5">
+          <button id="downloadPdf" class="py-2 rounded-lg bg-brand-500 hover:bg-brand-600 text-sm font-semibold">PDF</button>
+          <button id="printReceipt" class="py-2 rounded-lg bg-white/10 hover:bg-white/20 text-sm font-semibold">Print</button>
+          <button class="closeModal py-2 rounded-lg bg-white/5 hover:bg-white/10 text-sm font-semibold">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

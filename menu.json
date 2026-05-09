@@ -1,0 +1,22 @@
+[
+  { "id": 1,  "name": "Idli (2 pcs)",                  "price": 25,  "category": "Breakfast", "image": "assets/idli.jpg",                "rating": 4.5 },
+  { "id": 2,  "name": "Masala Dosa",                   "price": 60,  "category": "Breakfast", "image": "assets/masala-dosa.jpg",         "rating": 4.7 },
+  { "id": 3,  "name": "Plain Dosa",                    "price": 45,  "category": "Breakfast", "image": "assets/plain-dosa.jpg",          "rating": 4.3 },
+  { "id": 4,  "name": "Pongal",                        "price": 50,  "category": "Breakfast", "image": "assets/pongal.jpg",              "rating": 4.4 },
+  { "id": 5,  "name": "Poori Set",                     "price": 55,  "category": "Breakfast", "image": "assets/poori.jpg",               "rating": 4.2 },
+  { "id": 6,  "name": "Veg Fried Rice",                "price": 90,  "category": "Meals",     "image": "assets/veg-fried-rice.jpg",      "rating": 4.4 },
+  { "id": 7,  "name": "Chicken Fried Rice",            "price": 130, "category": "Meals",     "image": "assets/chicken-fried-rice.jpg",  "rating": 4.6 },
+  { "id": 8,  "name": "Veg Noodles",                   "price": 85,  "category": "Meals",     "image": "assets/veg-noodles.jpg",         "rating": 4.3 },
+  { "id": 9,  "name": "Chicken Noodles",               "price": 125, "category": "Meals",     "image": "assets/chicken-noodles.jpg",     "rating": 4.5 },
+  { "id": 10, "name": "Paneer Butter Masala + Roti",   "price": 140, "category": "Meals",     "image": "assets/paneer-roti.jpg",         "rating": 4.7 },
+  { "id": 11, "name": "Meals (South Indian Unlimited)","price": 120, "category": "Meals",     "image": "assets/meals.jpg",               "rating": 4.8 },
+  { "id": 12, "name": "Mini Meals",                    "price": 80,  "category": "Meals",     "image": "assets/mini-meals.jpg",          "rating": 4.4 },
+  { "id": 13, "name": "Chicken Briyani",               "price": 160, "category": "Meals",     "image": "assets/chicken-biryani.jpg",     "rating": 4.9 },
+  { "id": 14, "name": "Veg Briyani",                   "price": 110, "category": "Meals",     "image": "assets/veg-biryani.jpg",         "rating": 4.5 },
+  { "id": 15, "name": "Burger + Fries Combo",          "price": 150, "category": "Snacks",    "image": "assets/burger-fries.jpg",        "rating": 4.6 },
+  { "id": 16, "name": "Sandwich",                      "price": 70,  "category": "Snacks",    "image": "assets/sandwich.jpg",            "rating": 4.2 },
+  { "id": 17, "name": "Fresh Lime Juice",              "price": 40,  "category": "Beverages", "image": "assets/lime-juice.jpg",          "rating": 4.5 },
+  { "id": 18, "name": "Cold Coffee",                   "price": 75,  "category": "Beverages", "image": "assets/cold-coffee.jpg",         "rating": 4.7 },
+  { "id": 19, "name": "Tea / Coffee",                  "price": 20,  "category": "Beverages", "image": "assets/tea-coffee.jpg",          "rating": 4.3 },
+  { "id": 20, "name": "Ice Cream Cup",                 "price": 50,  "category": "Desserts",  "image": "assets/ice-cream.jpg",           "rating": 4.6 }
+]
